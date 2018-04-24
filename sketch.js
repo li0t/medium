@@ -27,18 +27,20 @@ function mean() {
   fill(127)
 
   var slope = 0;
+  var num = 0;
   var div = 0;
 
   for (let i = 0; i < boids.length; i++) {
     var pos = boids[i].position;
-
-    slope += (pos.x - mean.x) * (pos.y - mean.y);
+    num += (pos.x - mean.x) * (pos.y - mean.y);
     div += (pos.x - mean.x) * (pos.x - mean.x);
   }
 
-  slope /= div;
+  slope = num / div;
 
-  var intercepY = mean.x - (slope * mean.y);
+  console.log(slope);
+
+  var intercepY = mean.y - (slope * mean.x);
   // Line formula
   function lineFormula(x) {
     return (slope * x) + intercepY;
@@ -54,10 +56,10 @@ function mean() {
   for (let i = 0; i < boids.length; i++) {
     var boid = boids[i];
     var pos = boid.position;
-    var neighbors = 0;
 
-    // Connected to mean
-    line(pos.x, pos.y, mean.x, mean.y);
+    // line(pos.x, pos.y, mean.x, mean.y);     // Connected to mean
+    // var neighborhood = boid.cohesion(boids);
+    // line(pos.x, pos.y, neighborhood.x, neighborhood.y);
 
     // Connected between
     for (let j = 0; j < boids.length; j++) {
@@ -131,6 +133,7 @@ Flock.prototype.addBoid = function (b) {
 function Boid(x, y, id) {
   this.acceleration = createVector(0, 0);
   this.velocity = createVector(random(-1, 1), random(-1, 1));
+  // this.velocity = createVector(-0.01, 0);
   this.position = createVector(x, y);
   this.r = 3.0;
   this.id = id + '-' + getId();
@@ -187,6 +190,11 @@ Boid.prototype.flock = function (boids) {
   sep.mult(1.5);
   ali.mult(1.0);
   coh.mult(1.0);
+
+  // sep.mult(15);
+  // ali.mult(10);
+  // coh.mult(100);
+
   // Add the force vectors to acceleration
   this.applyForce(sep);
   this.applyForce(ali);
@@ -218,6 +226,8 @@ Boid.prototype.seek = function (target) {
 }
 
 Boid.prototype.render = function () {
+  // line(this.position.x, this.position.y, (this.position.x + this.velocity.x  * 50),  (this.position.y + this.velocity.y  * 50));
+
   // Draw a triangle rotated in the direction of velocity
   var theta = this.velocity.heading() + radians(90);
   fill(127);
@@ -228,7 +238,7 @@ Boid.prototype.render = function () {
   var posX = (Math.round(this.position.x) * 100) / 100;
   var posY = (Math.round(this.position.y) * 100) / 100;
 
-  // text(this.id, 2, 2, this.r.x, this.r.y);
+  text(this.id, 0, 0, this.r.x, this.r.y);
   // text(posX + ':' + posY, 2, 2, this.r.x, this.r.y);
   rotate(theta);
   beginShape();
@@ -251,7 +261,7 @@ Boid.prototype.teleport = function () {
     this.position.x = width + this.r
   };
 
-  // Bottom 
+  // Bottom
   if (this.position.y > height + this.r) {
     this.position.y = -this.r
   };
@@ -274,7 +284,7 @@ Boid.prototype.extinguish = function () {
 
 // Wraparound
 Boid.prototype.borders = function () {
-  if (Math.random(0, 1) > 0.75) {
+  if (Math.random(0, 1) > 0.15) {
     this.teleport();
   } else {
     this.extinguish();
