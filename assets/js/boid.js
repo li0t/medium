@@ -113,7 +113,8 @@ Boid.prototype.render = function () {
   var posX = (Math.round(this.position.x) * 100) / 100;
   var posY = (Math.round(this.position.y) * 100) / 100;
 
-  text(this.id, 0, 0, this.r.x, this.r.y);
+  text(this.id, -this.id.length*3, this.r*2);
+
   // text(posX + ':' + posY, 2, 2, this.r.x, this.r.y);
   rotate(theta);
   beginShape();
@@ -159,7 +160,8 @@ Boid.prototype.extinguish = function () {
 
 // Wraparound
 Boid.prototype.borders = function () {
-  if (Math.random(0, 1) > 0.15) {
+  if (false) {
+    // if (Math.random(0, 1) > 0.15) {
     this.teleport();
   } else {
     this.extinguish();

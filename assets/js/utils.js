@@ -1,34 +1,42 @@
-
 function getId() {
   return Math.random().toString(36).substr(2, 7);
 }
 
-function mean(flock) {
-  var neighbordist = 25;
+function drawMean(mean) {
+  fill(0)
+  ellipse(mean.x, mean.y, 15, 15);
+  fill(127)
+}
 
-  if (!flock.boids.length) {
-    return;
+function drawLinearRegression(lineFormula, steps) {
+  for (let i = steps; i < width; i += steps) {
+    ellipse(i, lineFormula(i), 1, 1);
   }
+}
 
-  var boids = flock.boids;
+function getMean(boids) {
   var mean = createVector(0, 0);
-
-  var count = 0;
-
   for (var i = 0; i < boids.length; i++) {
     mean.add(boids[i].position);
   }
 
   mean.div(boids.length);
 
-  fill(0)
-  ellipse(mean.x, mean.y, 5, 5);
-  fill(127)
+  drawMean(mean);
+  return mean;
+}
 
+function getLineFormula(boids) {
+  var mean = getMean(boids);
+
+  var count = 0;
   var slope = 0;
   var num = 0;
   var div = 0;
 
+  /**
+   * Linear regression formula
+   */
   for (let i = 0; i < boids.length; i++) {
     var pos = boids[i].position;
     num += (pos.x - mean.x) * (pos.y - mean.y);
@@ -43,18 +51,16 @@ function mean(flock) {
     return (slope * x) + intercepY;
   }
 
-  // Render
+  return lineFormula;
+}
 
-  // Linear regression
-  for (let i = 25; i < width; i += 25) {
-    ellipse(i, lineFormula(i), 1, 1);
-  }
+function drawNeighborhood(boids) {
+  var neighbordist = 35;
 
   for (let i = 0; i < boids.length; i++) {
     var boid = boids[i];
     var pos = boid.position;
 
-    // line(pos.x, pos.y, mean.x, mean.y);     // Connected to mean
     // var neighborhood = boid.cohesion(boids);
     // line(pos.x, pos.y, neighborhood.x, neighborhood.y);
 
@@ -71,7 +77,16 @@ function mean(flock) {
         }
       }
     }
+  }
+}
 
+function mean(flock) {
+  if (!flock.boids.length) {
+    return;
   }
 
+  var boids = flock.boids;
+
+  drawLinearRegression(getLineFormula(boids), 25);
+  drawNeighborhood(boids);
 }
