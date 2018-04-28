@@ -1,128 +1,3 @@
-var flock;
-
-function getId() {
-  return Math.random().toString(36).substr(2, 7);
-}
-
-function mean() {
-  var neighbordist = 25;
-
-  if (!flock.boids.length) {
-    return;
-  }
-
-  var boids = flock.boids;
-  var mean = createVector(0, 0);
-
-  var count = 0;
-
-  for (var i = 0; i < boids.length; i++) {
-    mean.add(boids[i].position);
-  }
-
-  mean.div(boids.length);
-
-  fill(0)
-  ellipse(mean.x, mean.y, 5, 5);
-  fill(127)
-
-  var slope = 0;
-  var num = 0;
-  var div = 0;
-
-  for (let i = 0; i < boids.length; i++) {
-    var pos = boids[i].position;
-    num += (pos.x - mean.x) * (pos.y - mean.y);
-    div += (pos.x - mean.x) * (pos.x - mean.x);
-  }
-
-  slope = num / div;
-
-  console.log(slope);
-
-  var intercepY = mean.y - (slope * mean.x);
-  // Line formula
-  function lineFormula(x) {
-    return (slope * x) + intercepY;
-  }
-
-  // Render
-
-  // Linear regression
-  for (let i = 25; i < width; i += 25) {
-    ellipse(i, lineFormula(i), 1, 1);
-  }
-
-  for (let i = 0; i < boids.length; i++) {
-    var boid = boids[i];
-    var pos = boid.position;
-
-    // line(pos.x, pos.y, mean.x, mean.y);     // Connected to mean
-    // var neighborhood = boid.cohesion(boids);
-    // line(pos.x, pos.y, neighborhood.x, neighborhood.y);
-
-    // Connected between
-    for (let j = 0; j < boids.length; j++) {
-      var boid2 = boids[j];
-
-      if (boid.id !== boid2.id) {
-
-        var d = p5.Vector.dist(boid.position, boid2.position);
-        if (d < neighbordist) {
-          var pos2 = boid2.position;
-          line(pos.x, pos.y, pos2.x, pos2.y);
-        }
-      }
-    }
-
-  }
-
-}
-
-function setup() {
-  createCanvas(640, 360);
-  createP("Drag the mouse to generate new boids.");
-
-  flock = new Flock();
-  // Add an initial set of boids into the system
-  for (var i = 0; i < 5; i++) {
-    flock.addBoid(new Boid(width / 2, height / 2, i));
-  }
-}
-
-function draw() {
-  background(51);
-  flock.run();
-  mean();
-}
-
-// Add a new boid into the System
-function mouseDragged() {
-  flock.addBoid(new Boid(mouseX, mouseY, flock.boids.length));
-}
-
-// The Nature of Code
-// Daniel Shiffman
-// http://natureofcode.com
-
-// Flock object
-// Does very little, simply manages the array of all the boids
-
-function Flock() {
-  // An array for all the boids
-  this.boids = []; // Initialize the array
-}
-
-Flock.prototype.run = function () {
-  for (var i = 0; i < this.boids.length; i++) {
-    this.boids[i].run(this.boids); // Passing the entire list of boids to each boid individually
-  }
-}
-
-Flock.prototype.addBoid = function (b) {
-  this.boids.push(b);
-}
-
 // The Nature of Code
 // Daniel Shiffman
 // http://natureofcode.com
@@ -187,13 +62,13 @@ Boid.prototype.flock = function (boids) {
   var ali = this.align(boids); // Alignment
   var coh = this.cohesion(boids); // Cohesion
   // Arbitrarily weight these forces
-  sep.mult(1.5);
-  ali.mult(1.0);
-  coh.mult(1.0);
+  //sep.mult(1.5);
+  //ali.mult(1.0);
+  //coh.mult(1.0);
 
-  // sep.mult(15);
-  // ali.mult(10);
-  // coh.mult(100);
+   sep.mult(15);
+   ali.mult(10);
+   coh.mult(1);
 
   // Add the force vectors to acceleration
   this.applyForce(sep);
