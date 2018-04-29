@@ -1,0 +1,20 @@
+{
+  "name": "medium",
+  "homepage": "https://github.com/li0t/medium",
+  "authors": [
+    "li0t <dev@liot.studio>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "tracking": "^1.1.3"
+  }
+}
