@@ -1,15 +1,21 @@
 var flock;
 var canvas;
+var data;
+var cur = 0;
+
 
 function setup() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
   flock = new Flock();
   // Add an initial set of boids into the system
   // for (var i = 0; i < 5; i++) {
-    // flock.addBoid(new Boid(width / 2, height / 2, i));
+  // flock.addBoid(new Boid(width / 2, height / 2, i));
   // }
 
-  spawn();
+  loadStrings('http://localhost:4443/text.txt', function (text) {
+    data = text;
+    spawnLoop();
+  });
 }
 
 function draw() {
@@ -18,16 +24,29 @@ function draw() {
   mean(flock);
 }
 
-function spawn() {
+
+function spawn(x, y) {
+  if (!data || !data.length) {
+    throw new Error('Invalid text');
+  }
+
+  if (cur === data.length) {
+    cur = 0;
+  }
+
+  flock.addBoid(new Boid(x, y, data[cur++]));
+}
+
+function spawnLoop() {
   setTimeout(function () {
-    flock.addBoid(new Boid(width / 2, height / 2, flock.boids.length));
-    spawn();
+    spawn(width / 2, height / 2);
+    spawnLoop();
   }, 100);
 }
 
 // Add a new boid into the System
 function mouseDragged() {
-  flock.addBoid(new Boid(mouseX, mouseY, flock.boids.length));
+  spawn(mouseX, mouseY);
 }
 
 window.onresize = function () {

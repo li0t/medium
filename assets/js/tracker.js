@@ -23,5 +23,3 @@ Tracker.prototype.track = function track() {
   });
 }
 
-var tracker = new Tracker('video01');
-tracker.track();

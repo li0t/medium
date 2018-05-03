@@ -5,13 +5,14 @@
 // Boid class
 // Methods for Separation, Cohesion, Alignment added
 
-function Boid(x, y, id) {
+function Boid(x, y, text) {
   this.acceleration = createVector(0, 0);
   this.velocity = createVector(random(-1, 1), random(-1, 1));
   // this.velocity = createVector(-0.01, 0);
   this.position = createVector(x, y);
   this.r = 3.0;
-  this.id = id + '-' + getId();
+  this.id = getId();
+  this.text = text;
 
   // Maximum speed
   this.maxspeed = function () {
@@ -104,25 +105,22 @@ Boid.prototype.render = function () {
   // line(this.position.x, this.position.y, (this.position.x + this.velocity.x  * 50),  (this.position.y + this.velocity.y  * 50));
 
   // Draw a triangle rotated in the direction of velocity
-  var theta = this.velocity.heading() + radians(90);
+  // var theta = this.velocity.heading() + radians(90);
   fill(127);
-  stroke(200);
-  push();
-  translate(this.position.x, this.position.y);
+  // stroke(200);
+  // push();
+  // translate(this.position.x, this.position.y);
 
-  var posX = (Math.round(this.position.x) * 100) / 100;
-  var posY = (Math.round(this.position.y) * 100) / 100;
 
-  text(this.id, -this.id.length*3, this.r*2);
+  text(this.text, -this.text.length*3, this.r*2);
 
-  // text(posX + ':' + posY, 2, 2, this.r.x, this.r.y);
-  rotate(theta);
-  beginShape();
-  vertex(0, -this.r * 2);
-  vertex(-this.r, this.r * 2);
-  vertex(this.r, this.r * 2);
-  endShape(CLOSE);
-  pop();
+  // rotate(theta);
+  // beginShape();
+  // vertex(0, -this.r * 2);
+  // vertex(-this.r, this.r * 2);
+  // vertex(this.r, this.r * 2);
+  // endShape(CLOSE);
+  // pop();
 }
 
 Boid.prototype.teleport = function () {
