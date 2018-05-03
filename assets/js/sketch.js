@@ -2,7 +2,7 @@ var flock;
 var canvas;
 var data;
 var cur = 0;
-
+var backgroundColor = 51;
 
 function setup() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
@@ -19,7 +19,7 @@ function setup() {
 }
 
 function draw() {
-  background(51);
+  background(backgroundColor);
   flock.run();
   mean(flock);
 }

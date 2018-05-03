@@ -1,3 +1,5 @@
+var lineColor = 255;
+
 function getId() {
   return Math.random().toString(36).substr(2, 7);
 }
@@ -65,8 +67,10 @@ function drawNeighborhood(boids) {
     // line(pos.x, pos.y, neighborhood.x, neighborhood.y);
 
     // Connected between
+    // stroke(lineColor);
     for (let j = 0; j < boids.length; j++) {
       var boid2 = boids[j];
+      stroke(boid.color);
 
       if (boid.id !== boid2.id) {
 
