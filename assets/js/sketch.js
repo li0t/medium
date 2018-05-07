@@ -2,14 +2,33 @@ var flock;
 var canvas;
 var data;
 var words;
+var tracker;
+var videoId = 'faceVideo';
 var cur = 0;
 var backgroundColor = 51;
 var origin;
 var originPoints = 5;
+var spawnRate = 1000;
 var spawners = {
   x: [],
   y: [],
 };
+
+function onFaceTracked(faces) {
+  for (var i = 0; i < faces.length; i++) {
+    var face = faces[i];
+    
+    console.log('Face tracked:', face);
+  }
+}
+
+function trackFaces(videoId) {
+  var video = createCapture(VIDEO);
+  video.size(width, height);
+  video.elt.id = videoId;
+  tracker = new Tracker(videoId);
+  tracker.track(onFaceTracked);
+}
 
 function loadData() {
   loadStrings('http://localhost:4443/text.txt', function (text) {
@@ -22,6 +41,7 @@ function loadData() {
     data = new RiString(newText);
     words = RiTa.tokenize(newText);
 
+    trackFaces(videoId);
     spawnLoop();
     changeOriginLoop();
   });
@@ -39,9 +59,9 @@ function setup() {
 }
 
 function draw() {
-  background(backgroundColor);
-  mean(flock);
-  flock.run();
+  // background(backgroundColor);
+  // mean(flock);
+  // flock.run();
 }
 
 function spawn(x, y) {
@@ -64,12 +84,7 @@ function getRandomPos() {
     y: random ? Math.random(height) : spawners.y[getRandomInt(spawners.y.length)],
   };
 
-  console.log(newPos);
-
-  // newPos = {
-  // x: width / 2,
-  // y: height / 2,
-  // };
+  console.log('Origin changed: ', newPos);
 
   return newPos;
 }
@@ -85,14 +100,14 @@ function changeOriginLoop() {
   setTimeout(function () {
     origin = Math.random() > 0.75 ? getRandomPos() : getScreenCenter();
     changeOriginLoop();
-  }, 200);
+  }, spawnRate * 2);
 }
 
 function spawnLoop() {
   setTimeout(function () {
     spawn(origin.x, origin.y);
     spawnLoop();
-  }, 100);
+  }, spawnRate);
 }
 
 // Add a new boid into the System

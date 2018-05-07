@@ -1,6 +1,6 @@
 function Tracker(videoId) {
   this.videoId = videoId;
-  this._tracker = new tracking.ObjectTracker('face');
+  this._tracker = new tracking.ObjectTracker(['face']);
 }
 
 Tracker.prototype.init = function init() {
@@ -10,16 +10,17 @@ Tracker.prototype.init = function init() {
 }
 
 Tracker.prototype.start = function start() {
-  tracking.track('#' + this.videoId, tracker, {
+  tracking.track('#' + this.videoId, this._tracker, {
     camera: true
   });
 }
 
-Tracker.prototype.track = function track() {
+Tracker.prototype.track = function track(cb) {
   this.init();
   this.start();
   this._tracker.on('track', function (event) {
-    event.data.forEach(function (rect) {});
+    if (event.data.length) {
+      cb(event.data);
+    }
   });
 }
-
