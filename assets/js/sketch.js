@@ -4,6 +4,12 @@ var data;
 var words;
 var cur = 0;
 var backgroundColor = 51;
+var origin;
+var originPoints = 5;
+var spawners = {
+  x: [],
+  y: [],
+};
 
 function loadData() {
   loadStrings('http://localhost:4443/text.txt', function (text) {
@@ -13,10 +19,11 @@ function loadData() {
 
     var newText = text.join(' ');
 
-    data =  new RiString(newText);
+    data = new RiString(newText);
     words = RiTa.tokenize(newText);
 
     spawnLoop();
+    changeOriginLoop();
   });
 }
 
@@ -24,16 +31,20 @@ function setup() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
   flock = new Flock();
   loadData();
+
+  for (let i = 1; i < originPoints; i++) {
+    spawners.x.push((width / originPoints) * i);
+    spawners.y.push((height / originPoints) * i);
+  }
 }
 
 function draw() {
   background(backgroundColor);
-  flock.run();
   mean(flock);
+  flock.run();
 }
 
 function spawn(x, y) {
-
   if (cur === words.length) {
     cur = 0;
   }
@@ -41,9 +52,45 @@ function spawn(x, y) {
   flock.addBoid(new Boid(x, y, words[cur++]));
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+function getRandomPos() {
+  var random = Math.random() > 0.5;
+
+  var newPos = {
+    x: random ? Math.random(width) : spawners.x[getRandomInt(spawners.x.length)],
+    y: random ? Math.random(height) : spawners.y[getRandomInt(spawners.y.length)],
+  };
+
+  console.log(newPos);
+
+  // newPos = {
+  // x: width / 2,
+  // y: height / 2,
+  // };
+
+  return newPos;
+}
+
+function getScreenCenter() {
+  return {
+    x: width / 2,
+    y: height / 2,
+  }
+}
+
+function changeOriginLoop() {
+  setTimeout(function () {
+    origin = Math.random() > 0.75 ? getRandomPos() : getScreenCenter();
+    changeOriginLoop();
+  }, 200);
+}
+
 function spawnLoop() {
   setTimeout(function () {
-    spawn(width / 2, height / 2);
+    spawn(origin.x, origin.y);
     spawnLoop();
   }, 100);
 }
