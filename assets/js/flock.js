@@ -6,8 +6,8 @@
 // Does very little, simply manages the array of all the boids
 
 function Flock() {
-  // An array for all the boids
-  this.boids = []; // Initialize the array
+  this.boids = []; 
+  this.maxBoids = 250; 
 }
 
 Flock.prototype.run = function () {
@@ -18,4 +18,8 @@ Flock.prototype.run = function () {
 
 Flock.prototype.addBoid = function (b) {
   this.boids.push(b);
+
+  if (this.boids.length === this.maxBoids){
+    this.boids.shift();
+  }
 }

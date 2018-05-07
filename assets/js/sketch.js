@@ -1,21 +1,29 @@
 var flock;
 var canvas;
 var data;
+var words;
 var cur = 0;
 var backgroundColor = 51;
+
+function loadData() {
+  loadStrings('http://localhost:4443/text.txt', function (text) {
+    if (!text || !text.length) {
+      throw new Error('Invalid data');
+    }
+
+    var newText = text.join(' ');
+
+    data =  new RiString(newText);
+    words = RiTa.tokenize(newText);
+
+    spawnLoop();
+  });
+}
 
 function setup() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
   flock = new Flock();
-  // Add an initial set of boids into the system
-  // for (var i = 0; i < 5; i++) {
-  // flock.addBoid(new Boid(width / 2, height / 2, i));
-  // }
-
-  loadStrings('http://localhost:4443/text.txt', function (text) {
-    data = text;
-    spawnLoop();
-  });
+  loadData();
 }
 
 function draw() {
@@ -24,17 +32,13 @@ function draw() {
   mean(flock);
 }
 
-
 function spawn(x, y) {
-  if (!data || !data.length) {
-    throw new Error('Invalid text');
-  }
 
-  if (cur === data.length) {
+  if (cur === words.length) {
     cur = 0;
   }
 
-  flock.addBoid(new Boid(x, y, data[cur++]));
+  flock.addBoid(new Boid(x, y, words[cur++]));
 }
 
 function spawnLoop() {

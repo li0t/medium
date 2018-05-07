@@ -14,7 +14,8 @@ function Boid(x, y, text) {
   this.id = getId();
   this.text = text;
   // this.color = Math.random(backgroundColor, 255);
-  this.color = Math.random() > 0.9 ? 255 : 0;
+  // this.color = Math.random() > 0.9 ? 255 : 0;
+  this.color = Math.random() > 0.925 ? 255 : backgroundColor;
 
   // Maximum speed
   this.maxspeed = function () {
@@ -108,8 +109,10 @@ Boid.prototype.render = function () {
 
   // Draw a triangle rotated in the direction of velocity
   // var theta = this.velocity.heading() + radians(90);
-  // fill(this.color);
+  fill(this.color);
   stroke(this.color);
+  // fill(backgroundColor);
+  // stroke(backgroundColor);
   push();
   translate(this.position.x, this.position.y);
 

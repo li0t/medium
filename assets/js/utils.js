@@ -6,8 +6,8 @@ function getId() {
 
 function drawMean(mean) {
   fill(0)
+  stroke(0)
   ellipse(mean.x, mean.y, 15, 15);
-  fill(127)
 }
 
 function drawLinearRegression(lineFormula, steps) {
@@ -70,7 +70,8 @@ function drawNeighborhood(boids) {
     // stroke(lineColor);
     for (let j = 0; j < boids.length; j++) {
       var boid2 = boids[j];
-      stroke(boid.color);
+      // stroke(boid.color);
+      stroke(0);
 
       if (boid.id !== boid2.id) {
 
