@@ -13,15 +13,25 @@ var spawners = {
   y: [],
 };
 
+var eyes = [
+  // Left
+  23, 63, 24, 64, 25, 65, 26, 66,
+
+  // Right
+  30, 68, 29, 67, 28, 70, 31, 69
+];
+
 
 function positionLoop() {
   requestAnimationFrame(positionLoop);
   var positions = tracker.getCurrentPosition();
   // positions = [[x_0, y_0], [x_1,y_1], ... ]
-  if(positions){
-    var pos = positions[Math.floor(Math.random() * positions.length)];
-    spawn(new Boid(pos[0], pos[1]));
-    console.log('Spawned in ', pos)
+  if (positions) {
+    var index = eyes[Math.floor(Math.random() * eyes.length)];
+    var videoPos = positions[index];
+    var x = 
+
+    spawn(x, y);
   }
 }
 
@@ -107,6 +117,7 @@ function spawn(x, y) {
     cur = 0;
   }
 
+  console.log('Spawned in ', x, y);
   flock.addBoid(new Boid(x, y, words[cur++]));
 }
 
