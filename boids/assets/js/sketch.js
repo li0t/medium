@@ -3,7 +3,6 @@ var canvas;
 var data;
 var words;
 var tracker;
-var videoId = 'faceVideo';
 var cur = 0;
 var backgroundColor = 51;
 var origin;
@@ -14,20 +13,26 @@ var spawners = {
   y: [],
 };
 
-function onFaceTracked(faces) {
-  for (var i = 0; i < faces.length; i++) {
-    var face = faces[i];
-    
-    console.log('Face tracked:', face);
+function positionLoop() {
+  requestAnimationFrame(positionLoop);
+  var positions = tracker.getCurrentPosition();
+  // positions = [[x_0, y_0], [x_1,y_1], ... ]
+  // do something with the positions ...
+  if(positions){
+    console.log('Face tracked:', positions);
   }
 }
 
 function trackFaces(videoId) {
-  var video = createCapture(VIDEO);
-  video.size(width, height);
-  video.elt.id = videoId;
-  tracker = new Tracker(videoId);
-  tracker.track(onFaceTracked);
+  var video = document.getElementById(videoId);
+
+  video.width = window.width;
+  video.height = window.height;
+
+  tracker = new clm.tracker();
+  tracker.init();
+  tracker.start(video);
+  positionLoop();
 }
 
 function loadData() {
@@ -40,9 +45,9 @@ function loadData() {
 
     data = new RiString(newText);
     words = RiTa.tokenize(newText);
-
-    trackFaces(videoId);
-    spawnLoop();
+    startWebcam();
+    trackFaces("video");
+    // spawnLoop();
     changeOriginLoop();
   });
 }
