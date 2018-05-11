@@ -17,9 +17,9 @@ function positionLoop() {
   requestAnimationFrame(positionLoop);
   var positions = tracker.getCurrentPosition();
   // positions = [[x_0, y_0], [x_1,y_1], ... ]
-  // do something with the positions ...
   if(positions){
     console.log('Face tracked:', positions);
+    flock.onData(positions)
   }
 }
 
@@ -35,7 +35,7 @@ function trackFaces(videoId) {
   positionLoop();
 }
 
-function loadData() {
+function loadData(flock) {
   loadStrings('http://localhost:4443/text.txt', function (text) {
     if (!text || !text.length) {
       throw new Error('Invalid data');
@@ -55,7 +55,7 @@ function loadData() {
 function setup() {
   canvas = createCanvas(window.innerWidth, window.innerHeight);
   flock = new Flock();
-  loadData();
+  loadData(flock);
 
   for (let i = 1; i < originPoints; i++) {
     spawners.x.push((width / originPoints) * i);
@@ -67,14 +67,6 @@ function draw() {
   // background(backgroundColor);
   // mean(flock);
   // flock.run();
-}
-
-function spawn(x, y) {
-  if (cur === words.length) {
-    cur = 0;
-  }
-
-  flock.addBoid(new Boid(x, y, words[cur++]));
 }
 
 function getRandomInt(max) {
@@ -108,9 +100,17 @@ function changeOriginLoop() {
   }, spawnRate * 2);
 }
 
+function spawn(x, y) {
+  if (cur === words.length) {
+    cur = 0;
+  }
+
+  flock.addBoid(new Boid(x, y, words[cur++]));
+}
+
 function spawnLoop() {
   setTimeout(function () {
-    spawn(origin.x, origin.y);
+    flock.spawn(origin.x, origin.y);
     spawnLoop();
   }, spawnRate);
 }
