@@ -13,13 +13,15 @@ var spawners = {
   y: [],
 };
 
+
 function positionLoop() {
   requestAnimationFrame(positionLoop);
   var positions = tracker.getCurrentPosition();
   // positions = [[x_0, y_0], [x_1,y_1], ... ]
   if(positions){
-    console.log('Face tracked:', positions);
-    flock.onData(positions)
+    var pos = positions[Math.floor(Math.random() * positions.length)];
+    spawn(new Boid(pos[0], pos[1]));
+    console.log('Spawned in ', pos)
   }
 }
 
@@ -47,7 +49,7 @@ function loadData(flock) {
     words = RiTa.tokenize(newText);
     startWebcam();
     trackFaces("video");
-    // spawnLoop();
+    spawnLoop();
     changeOriginLoop();
   });
 }
@@ -64,9 +66,9 @@ function setup() {
 }
 
 function draw() {
-  // background(backgroundColor);
-  // mean(flock);
-  // flock.run();
+  background(backgroundColor);
+  mean(flock);
+  flock.run();
 }
 
 function getRandomInt(max) {
@@ -110,7 +112,7 @@ function spawn(x, y) {
 
 function spawnLoop() {
   setTimeout(function () {
-    flock.spawn(origin.x, origin.y);
+    spawn(origin.x, origin.y);
     spawnLoop();
   }, spawnRate);
 }

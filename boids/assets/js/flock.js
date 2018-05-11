@@ -8,11 +8,6 @@
 function Flock() {
   this.boids = [];
   this.maxBoids = 250;
-  this.onData = function (positions) {
-    var pos = positions[Math.floor(Math.random() * positions.length)];
-    this.addBoid(new Boid(pos[0], pos[1]));
-    console.log('Spawned in ', pos)
-  }
 }
 
 Flock.prototype.run = function () {
