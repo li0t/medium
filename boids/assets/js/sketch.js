@@ -1,6 +1,7 @@
 var flock;
 var canvas;
 var data;
+var phrases;
 var words;
 var tracker;
 var cur = 0;
@@ -13,76 +14,114 @@ var spawners = {
   y: [],
 };
 
-var eyes = [
-  // Left
-  23, 63, 24, 64, 25, 65, 26, 66,
+var connectionStrength = 0
+var lastConnectionStrength = 0
 
-  // Right
-  30, 68, 29, 67, 28, 70, 31, 69
-];
+var connectionFrames = 0;
+var connectionLabel = 'Llamando a';
 
+var dash = false;
 
-function positionLoop() {
-  requestAnimationFrame(positionLoop);
-  var positions = tracker.getCurrentPosition();
-  // positions = [[x_0, y_0], [x_1,y_1], ... ]
-  if (positions) {
-    var index = eyes[Math.floor(Math.random() * eyes.length)];
-    var videoPos = positions[index];
-    var x = 
-
-    spawn(x, y);
-  }
+function updateConnectionLabel() {
+  dash = !dash;
+  return 'Llamando a ' + (dash ? '_' : '');
 }
 
-function trackFaces(videoId) {
+function getConnectionStatus() {
+  updateConnection();
+
+  if (connectionFrames % 10 === 0) {
+    connectionLabel = updateConnectionLabel();
+
+    if (connectionStrength > 10) {
+      connectionLabel = 'Llamando a _' + words[getRandomInt(words.length)];
+    }
+
+  }
+
+  return connectionLabel;
+}
+
+function updateConnection() {
+  connectionFrames++
+
+  if (connectionFrames % 2 === 0) {
+    --connectionStrength;
+    if (connectionStrength < 0) connectionStrength = 0;
+  }
+
+  console.log(connectionStrength);
+
+}
+
+function printConnectionStatus(status) {
+  push();
+  translate((width / 2) - 200, height / 2);
+  fill(255);
+  textSize(55);
+  text(status, 1, 1);
+  pop();
+}
+
+function tryConnection() {
+  var status = getConnectionStatus();
+  printConnectionStatus(status);
+}
+
+function flocking() {
+  mean(flock);
+  flock.run();
+}
+
+function onColorTracked(rects) {
+  var tracks = rects.length;
+  connectionStrength += tracks;
+}
+
+function trackColor(videoId) {
   var video = document.getElementById(videoId);
 
   video.width = window.width;
   video.height = window.height;
 
-  tracker = new clm.tracker();
-  tracker.init();
-  tracker.start(video);
-  positionLoop();
+  tracker = new Tracker(videoId)
+  tracker.track(onColorTracked);
 }
 
-function loadData(flock) {
-  loadStrings('http://localhost:4443/text.txt', function (text) {
-    if (!text || !text.length) {
-      throw new Error('Invalid data');
-    }
-
-    var newText = text.join(' ');
-
-    data = new RiString(newText);
-    words = RiTa.tokenize(newText);
-    startWebcam();
-    trackFaces("video");
-    spawnLoop();
-    changeOriginLoop();
-  });
-}
-
-function setup() {
-  canvas = createCanvas(window.innerWidth, window.innerHeight);
-  flock = new Flock();
-  loadData(flock);
-
+function loadSpawners() {
   for (let i = 1; i < originPoints; i++) {
     spawners.x.push((width / originPoints) * i);
     spawners.y.push((height / originPoints) * i);
   }
 }
 
-function draw() {
-  background(backgroundColor);
-  mean(flock);
-  flock.run();
+function initialize() {
+  loadStrings('http://localhost:4443/text.txt', function (text) {
+    if (!text || !text.length) {
+      throw new Error('Invalid data');
+    }
+
+    words = RiTa.tokenize(text.join(' '));
+    phrases = text;
+
+    loadSpawners();
+    trackColor("video");
+    // spawnLoop();
+    changeOriginLoop();
+
+  });
 }
 
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
+function setup() {
+  canvas = createCanvas(window.innerWidth, window.innerHeight);
+  flock = new Flock();
+  initialize();
+}
+
+function draw() {
+  background(backgroundColor);
+  flocking();
+  tryConnection();
 }
 
 function getRandomPos() {
@@ -113,12 +152,12 @@ function changeOriginLoop() {
 }
 
 function spawn(x, y) {
-  if (cur === words.length) {
+  if (cur === phrases.length) {
     cur = 0;
   }
 
   console.log('Spawned in ', x, y);
-  flock.addBoid(new Boid(x, y, words[cur++]));
+  flock.addBoid(new Boid(x, y, phrases[cur++]));
 }
 
 function spawnLoop() {

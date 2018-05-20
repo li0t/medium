@@ -95,3 +95,9 @@ function mean(flock) {
   drawLinearRegression(getLineFormula(boids), 25);
   drawNeighborhood(boids);
 }
+
+
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}

@@ -3,4 +3,14 @@ html, body {
   padding: 0;
 }
 
+#video {
+  position: absolute;
+  z-index: 0;
+}
+
+canvas {
+  position: absolute;
+  z-index: 10;
+}
+
 
