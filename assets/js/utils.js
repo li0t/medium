@@ -57,7 +57,7 @@ function getLineFormula(boids) {
 }
 
 function drawNeighborhood(boids) {
-  var neighbordist = 35;
+  var neighbordist = 100;
 
   for (let i = 0; i < boids.length; i++) {
     var boid = boids[i];

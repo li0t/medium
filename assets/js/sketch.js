@@ -4,7 +4,8 @@ var data;
 var phrases;
 var words;
 var tracker;
-var cur = 0;
+var curWord = 0;
+var curPhrase = 0;
 var backgroundColor = 51;
 var origin;
 var originPoints = 5;
@@ -13,9 +14,6 @@ var spawners = {
   x: [],
   y: [],
 };
-
-var connectionStrength = 0
-var lastConnectionStrength = 0
 
 var connectionFrames = 0;
 var connectionLabel = 'Llamando a';
@@ -33,7 +31,7 @@ function getConnectionStatus() {
   if (connectionFrames % 10 === 0) {
     connectionLabel = updateConnectionLabel();
 
-    if (connectionStrength > 10) {
+    if (flock.strength > 25 && flock.boids.length < 10) {
       connectionLabel = 'Llamando a _' + words[getRandomInt(words.length)];
     }
 
@@ -46,15 +44,15 @@ function updateConnection() {
   connectionFrames++
 
   if (connectionFrames % 2 === 0) {
-    --connectionStrength;
-    if (connectionStrength < 0) connectionStrength = 0;
+    flock.addStrength(-1);
   }
-
-  console.log(connectionStrength);
-
 }
 
 function printConnectionStatus(status) {
+  if (flock.strength >= 100) {
+    return;
+  }
+
   push();
   translate((width / 2) - 200, height / 2);
   fill(255);
@@ -75,7 +73,8 @@ function flocking() {
 
 function onColorTracked(rects) {
   var tracks = rects.length;
-  connectionStrength += tracks;
+  flock.addStrength(tracks * 1.5);
+
 }
 
 function trackColor(videoId) {
@@ -101,14 +100,18 @@ function initialize() {
       throw new Error('Invalid data');
     }
 
-    words = RiTa.tokenize(text.join(' '));
-    phrases = text;
+    loadFont('assets/fonts/Montserrat.ttf', function (font) {
+      textFont(font);
 
-    loadSpawners();
-    trackColor("video");
-    // spawnLoop();
-    changeOriginLoop();
+      words = RiTa.tokenize(text.join(' '));
+      phrases = text;
 
+      loadSpawners();
+      trackColor("video");
+      spawnLoop();
+      changeOriginLoop();
+
+    });
   });
 }
 
@@ -128,8 +131,8 @@ function getRandomPos() {
   var random = Math.random() > 0.5;
 
   var newPos = {
-    x: random ? Math.random(width) : spawners.x[getRandomInt(spawners.x.length)],
-    y: random ? Math.random(height) : spawners.y[getRandomInt(spawners.y.length)],
+    x: random ? getRandomInt(width) : spawners.x[getRandomInt(spawners.x.length)],
+    y: random ? getRandomInt(height) : spawners.y[getRandomInt(spawners.y.length)],
   };
 
   console.log('Origin changed: ', newPos);
@@ -146,23 +149,33 @@ function getScreenCenter() {
 
 function changeOriginLoop() {
   setTimeout(function () {
-    origin = Math.random() > 0.75 ? getRandomPos() : getScreenCenter();
+    origin = Math.random() > 0.25 ? getRandomPos() : getScreenCenter();
     changeOriginLoop();
   }, spawnRate * 2);
 }
 
 function spawn(x, y) {
-  if (cur === phrases.length) {
-    cur = 0;
+  if (curPhrase === phrases.length) {
+    curPhrase = 0;
   }
 
-  console.log('Spawned in ', x, y);
-  flock.addBoid(new Boid(x, y, phrases[cur++]));
+  if (curWord === words.length) {
+    curWord = 0;
+  }
+
+  if (flock.strength < 80) {
+    return;
+  }
+
+  var text = Math.random() > 0.5 ? phrases[curPhrase++] : words[curWord++];
+  flock.addBoid(new Boid(x, y, text, flock.strength));
 }
 
 function spawnLoop() {
   setTimeout(function () {
-    spawn(origin.x, origin.y);
+    if (flock.strength > 1) {
+      spawn(origin.x, origin.y);
+    }
     spawnLoop();
   }, spawnRate);
 }

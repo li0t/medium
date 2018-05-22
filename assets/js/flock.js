@@ -6,8 +6,11 @@
 // Does very little, simply manages the array of all the boids
 
 function Flock() {
+  this.maxStrength = 200;
+  this.maxBoids = 100;
+
+  this.strength = 0;
   this.boids = [];
-  this.maxBoids = 250;
 }
 
 Flock.prototype.run = function () {
@@ -22,4 +25,18 @@ Flock.prototype.addBoid = function (b) {
   if (this.boids.length === this.maxBoids) {
     this.boids.shift();
   }
+}
+
+Flock.prototype.addStrength = function (newStrength) {
+  this.strength += newStrength
+
+  if (this.strength < 0) {
+    this.strength = 0;
+  }
+
+  if (this.strength > this.maxStrength) {
+    this.strength = this.maxStrength;
+  }
+
+  console.log('Flock strength', this.strength);
 }

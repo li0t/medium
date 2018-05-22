@@ -6,39 +6,34 @@
 // Methods for Separation, Cohesion, Alignment added
 
 function Boid(x, y, text) {
+
   this.acceleration = createVector(0, 0);
   this.velocity = createVector(random(-1, 1), random(-1, 1));
-  // this.velocity = createVector(-0.01, 0);
   this.position = createVector(x, y);
   this.r = 3.0;
   this.id = getId();
   this.text = text;
-  // this.color = Math.random(backgroundColor, 255);
-  // this.color = Math.random() > 0.9 ? 255 : 0;
-  this.color = Math.random() > 0.925 ? 255 : backgroundColor;
+  this.strength = (flock.strength / 100);
+  this.shows = Math.random() <= this.strength;
+  this.color = 255;
 
+  if (this.shows) {
+    console.log('One appears at: ', x, y);
+  }
   // Maximum speed
   this.maxspeed = function () {
-    // return 3;
     return random(0.5, 3) + (flock.boids.length / 100);
-    // return random(0.5, 3) - (flock.boids.length / 10000);
   }
 
   // Maximum steering force
   this.maxforce = function () {
-    // return 0.05;
-
     return random(0.01, 0.5) + (flock.boids.length / 1000);
-    // return random(0.01, 0.5) + (flock.boids.length / 1000);
   }
 
 }
 
-Boid.prototype.kill = function () {
-  flock.boids.shift();
-}
-
 Boid.prototype.die = function () {
+  console.log('A boid dies');
   for (var i = 0; i < flock.boids.length; i++) {
     var boid = flock.boids[i];
     if (this.id === boid.id) {
@@ -48,11 +43,21 @@ Boid.prototype.die = function () {
   }
 }
 
+Boid.prototype.checkStrength = function () {
+  if (flock.strength < 100) {
+    if (Math.random() > flock.strength / 100) {
+      this.die();
+    }
+  }
+}
+
+
 Boid.prototype.run = function (boids) {
   this.flock(boids);
   this.update();
   this.borders();
   this.render();
+  this.checkStrength();
 }
 
 Boid.prototype.applyForce = function (force) {
@@ -65,14 +70,10 @@ Boid.prototype.flock = function (boids) {
   var sep = this.separate(boids); // Separation
   var ali = this.align(boids); // Alignment
   var coh = this.cohesion(boids); // Cohesion
-  // Arbitrarily weight these forces
-  //sep.mult(1.5);
-  //ali.mult(1.0);
-  //coh.mult(1.0);
 
-   sep.mult(15);
-   ali.mult(10);
-   coh.mult(1);
+  sep.mult(15);
+  ali.mult(10);
+  coh.mult(1);
 
   // Add the force vectors to acceleration
   this.applyForce(sep);
@@ -109,6 +110,11 @@ Boid.prototype.render = function () {
 
   // Draw a triangle rotated in the direction of velocity
   // var theta = this.velocity.heading() + radians(90);
+
+  if (!this.shows) {
+    return;
+  }
+
   fill(this.color);
   stroke(this.color);
   // fill(backgroundColor);
@@ -117,7 +123,7 @@ Boid.prototype.render = function () {
   translate(this.position.x, this.position.y);
 
 
-  text(this.text, -this.text.length*3, this.r*2);
+  text(this.text, -this.text.length * 3, this.r * 2);
 
   // rotate(theta);
   // beginShape();
@@ -159,7 +165,6 @@ Boid.prototype.extinguish = function () {
     this.die();
   }
 }
-
 
 // Wraparound
 Boid.prototype.borders = function () {
