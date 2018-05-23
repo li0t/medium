@@ -2,6 +2,7 @@ var flock;
 var canvas;
 var data;
 var phrases;
+var names;
 var words;
 var tracker;
 var curWord = 0;
@@ -14,6 +15,7 @@ var spawners = {
   x: [],
   y: [],
 };
+
 
 var connectionFrames = 0;
 var connectionLabel = 'Llamando a';
@@ -32,7 +34,7 @@ function getConnectionStatus() {
     connectionLabel = updateConnectionLabel();
 
     if (flock.strength > 25 && flock.boids.length < 10) {
-      connectionLabel = 'Llamando a _' + words[getRandomInt(words.length)];
+      connectionLabel = 'Llamando a _' + names[getRandomInt(names.length)];
     }
 
   }
@@ -49,7 +51,7 @@ function updateConnection() {
 }
 
 function printConnectionStatus(status) {
-  if (flock.strength >= 100) {
+  if (flock.strength >= 130) {
     return;
   }
 
@@ -95,22 +97,30 @@ function loadSpawners() {
 }
 
 function initialize() {
-  loadStrings('http://localhost:4443/text.txt', function (text) {
-    if (!text || !text.length) {
-      throw new Error('Invalid data');
+  loadStrings('assets/phrases.txt', function (foundPhrases) {
+    if (!foundPhrases || !foundPhrases.length) {
+      throw new Error('Invalid phrases');
     }
 
-    loadFont('assets/fonts/Montserrat.ttf', function (font) {
-      textFont(font);
+    phrases = foundPhrases;
+    words = RiTa.tokenize(phrases.join(' '));
 
-      words = RiTa.tokenize(text.join(' '));
-      phrases = text;
+    loadStrings('assets/names.txt', function (foundNames) {
+      if (!foundNames || !foundNames.length) {
+        throw new Error('Invalid names');
+      }
 
-      loadSpawners();
-      trackColor("video");
-      spawnLoop();
-      changeOriginLoop();
+      names = foundNames;
 
+      loadFont('assets/fonts/Montserrat.ttf', function (font) {
+        textFont(font);
+
+        loadSpawners();
+        trackColor("video");
+        spawnLoop();
+        changeOriginLoop();
+
+      });
     });
   });
 }
@@ -163,7 +173,7 @@ function spawn(x, y) {
     curWord = 0;
   }
 
-  if (flock.strength < 80) {
+  if (flock.strength < 120) {
     return;
   }
 
