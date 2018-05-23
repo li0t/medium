@@ -56,7 +56,7 @@ function printConnectionStatus(status) {
   }
 
   push();
-  translate((width / 2) - 200, height / 2);
+  translate((width / 2) - 350, height / 2);
   fill(255);
   textSize(55);
   text(status, 1, 1);
