@@ -1,3 +1,37 @@
+// Multiplies the tracked color squares by this factor and increase the flock boid by the result.
+var STRENGTH_INCREASE_FACTOR = 1.5;
+
+// How many frames does it wait to decrease connection strength
+var CONNECTION_STRENGTH_DECAY_RATE = 2;
+
+// How much connection strength is lost each time
+var CONNECTION_STRENGTH_DECAY_FACTOR = -1;
+
+// How many frames does it wait to try to spawn another boid
+var BOID_SPAWN_RATE = 1000;
+
+// How much strength the flock needs to spawn a new boid
+var BOID_SPAWN_MIN_STRENGTH = 120;
+
+// Minimun connection strength to display names
+var CONNECTION_STRENGTH_LOWER_BOUND = 25;
+
+// Maximun connection strength to display names
+var CONNECTION_STRENGTH_UPPER_BOUND = 130;
+
+// Connection label configuration
+var CONNECTION_LABEL_WIDTH = 350;
+var CONNECTION_LABEL_COLOR = 255;
+var CONNECTION_LABEL_FONT_SIZE = 55;
+
+var BACKGROUND_COLOR = 51;
+
+var PATH_TEXT_FONT = 'assets/fonts/courier-new/cour.ttf';
+var PATH_PHRASES = 'assets/phrases.txt';
+var PATH_NAMES = 'assets/names.txt';
+
+var VIDEO_ID = "video";
+
 var flock;
 var canvas;
 var data;
@@ -5,18 +39,15 @@ var phrases;
 var names;
 var words;
 var tracker;
-var curWord = 0;
-var curPhrase = 0;
-var backgroundColor = 51;
 var origin;
-var originPoints = 5;
-var spawnRate = 1000;
 var spawners = {
   x: [],
   y: [],
 };
 
-
+var curWord = 0;
+var curPhrase = 0;
+var originPoints = 5;
 var connectionFrames = 0;
 var connectionLabel = 'Llamando a';
 
@@ -33,7 +64,7 @@ function getConnectionStatus() {
   if (connectionFrames % 10 === 0) {
     connectionLabel = updateConnectionLabel();
 
-    if (flock.strength > 25) {
+    if (flock.strength > CONNECTION_STRENGTH_LOWER_BOUND) {
       connectionLabel = 'Llamando a _' + names[getRandomInt(names.length)];
     }
 
@@ -45,20 +76,20 @@ function getConnectionStatus() {
 function updateConnection() {
   connectionFrames++
 
-  if (connectionFrames % 2 === 0) {
-    flock.addStrength(-1);
+  if (connectionFrames % CONNECTION_STRENGTH_DECAY_RATE === 0) {
+    flock.addStrength(CONNECTION_STRENGTH_DECAY_FACTOR);
   }
 }
 
 function printConnectionStatus(status) {
-  if (flock.strength >= 130 || flock.boids.length > 10) {
+  if (flock.strength >= CONNECTION_STRENGTH_UPPER_BOUND || flock.boids.length > 10) {
     return;
   }
 
   push();
-  translate((width / 2) - 350, height / 2);
-  fill(255);
-  textSize(55);
+  translate((width / 2) - CONNECTION_LABEL_WIDTH, height / 2);
+  fill(CONNECTION_LABEL_COLOR);
+  textSize(CONNECTION_LABEL_FONT_SIZE);
   text(status, 1, 1);
   pop();
 }
@@ -75,8 +106,7 @@ function flocking() {
 
 function onColorTracked(rects) {
   var tracks = rects.length;
-  flock.addStrength(tracks * 1.5);
-
+  flock.addStrength(tracks * STRENGTH_INCREASE_FACTOR);
 }
 
 function trackColor(videoId) {
@@ -97,7 +127,7 @@ function loadSpawners() {
 }
 
 function initialize() {
-  loadStrings('assets/phrases.txt', function (foundPhrases) {
+  loadStrings(PATH_PHRASES, function (foundPhrases) {
     if (!foundPhrases || !foundPhrases.length) {
       throw new Error('Invalid phrases');
     }
@@ -105,18 +135,18 @@ function initialize() {
     phrases = foundPhrases;
     words = RiTa.tokenize(phrases.join(' '));
 
-    loadStrings('assets/names.txt', function (foundNames) {
+    loadStrings(PATH_NAMES, function (foundNames) {
       if (!foundNames || !foundNames.length) {
         throw new Error('Invalid names');
       }
 
       names = foundNames;
 
-      loadFont('assets/fonts/courier-new/cour.ttf', function (font) {
+      loadFont(PATH_TEXT_FONT, function (font) {
         textFont(font);
 
         loadSpawners();
-        trackColor("video");
+        trackColor(VIDEO_ID);
         spawnLoop();
         changeOriginLoop();
 
@@ -132,7 +162,7 @@ function setup() {
 }
 
 function draw() {
-  background(backgroundColor);
+  background(BACKGROUND_COLOR);
   flocking();
   tryConnection();
 }
@@ -146,7 +176,6 @@ function getRandomPos() {
   };
 
   console.log('Origin changed: ', newPos);
-
   return newPos;
 }
 
@@ -161,7 +190,7 @@ function changeOriginLoop() {
   setTimeout(function () {
     origin = Math.random() > 0.25 ? getRandomPos() : getScreenCenter();
     changeOriginLoop();
-  }, spawnRate * 2);
+  }, BOID_SPAWN_RATE * 2);
 }
 
 function spawn(x, y) {
@@ -173,7 +202,7 @@ function spawn(x, y) {
     curWord = 0;
   }
 
-  if (flock.strength < 120) {
+  if (flock.strength < BOID_SPAWN_MIN_STRENGTH) {
     return;
   }
 
@@ -187,7 +216,7 @@ function spawnLoop() {
       spawn(origin.x, origin.y);
     }
     spawnLoop();
-  }, spawnRate);
+  }, BOID_SPAWN_RATE);
 }
 
 // Add a new boid into the System
