@@ -112,7 +112,7 @@ function initialize() {
 
       names = foundNames;
 
-      loadFont('assets/fonts/Montserrat.ttf', function (font) {
+      loadFont('assets/fonts/courier-new/cour.ttf', function (font) {
         textFont(font);
 
         loadSpawners();

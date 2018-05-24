@@ -122,7 +122,7 @@ Boid.prototype.render = function () {
   push();
   translate(this.position.x, this.position.y);
 
-
+  textSize(20);
   text(this.text, -this.text.length * 3, this.r * 2);
 
   // rotate(theta);

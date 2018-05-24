@@ -38,5 +38,5 @@ Flock.prototype.addStrength = function (newStrength) {
     this.strength = this.maxStrength;
   }
 
-  console.log('Flock strength', this.strength);
+  // console.log('Flock strength', this.strength);
 }
