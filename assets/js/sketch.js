@@ -33,7 +33,7 @@ function getConnectionStatus() {
   if (connectionFrames % 10 === 0) {
     connectionLabel = updateConnectionLabel();
 
-    if (flock.strength > 25 && flock.boids.length < 10) {
+    if (flock.strength > 25) {
       connectionLabel = 'Llamando a _' + names[getRandomInt(names.length)];
     }
 
@@ -51,7 +51,7 @@ function updateConnection() {
 }
 
 function printConnectionStatus(status) {
-  if (flock.strength >= 130) {
+  if (flock.strength >= 130 || flock.boids.length > 10) {
     return;
   }
 
