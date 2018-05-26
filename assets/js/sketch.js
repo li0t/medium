@@ -2,7 +2,7 @@
 var STRENGTH_INCREASE_FACTOR = 1.5;
 
 // How many frames does it wait to decrease connection strength
-var CONNECTION_STRENGTH_DECAY_RATE = 2;
+var CONNECTION_STRENGTH_DECAY_RATE = 10;
 
 // How much connection strength is lost each time
 var CONNECTION_STRENGTH_DECAY_FACTOR = -1;
@@ -231,3 +231,7 @@ window.onresize = function () {
   width = w;
   height = h;
 };
+
+window.onclick = function(){
+  flock.strength = 0;
+}
